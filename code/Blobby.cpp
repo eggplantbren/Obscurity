@@ -21,16 +21,16 @@ double Blobby::evaluate(double x, double y, bool update) const
                              (blobs.get_added()):
                              (blobs.get_components());
 
-	double rsq, widthsq;
+	double rsq, widthsq, rho;
 	for(size_t i=0; i<components.size(); i++)
 	{
 		rsq = pow(x - components[i][0], 2)
 				+ pow(y - components[i][1], 2);
 		widthsq = pow(components[i][3], 2);
+        rho = components[i][2]/(M_PI*widthsq);
 
 		if(rsq < widthsq)
-			f += components[i][2]*
-				2./M_PI*(1. - rsq/widthsq)/widthsq;
+			f += rho;
 	}
 
 	return f;

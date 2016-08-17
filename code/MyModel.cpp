@@ -2,6 +2,9 @@
 #include "DNest4/code/DNest4.h"
 #include <stdexcept>
 
+namespace Obscurity
+{
+
 const double MyModel::dx = (MyModel::x_max - MyModel::x_min)/MyModel::nj;
 const double MyModel::dy = (MyModel::y_max - MyModel::y_min)/MyModel::ni;
 
@@ -73,4 +76,6 @@ std::string MyModel::description() const
 {
 	return std::string("");
 }
+
+} // namespace Obscurity
 

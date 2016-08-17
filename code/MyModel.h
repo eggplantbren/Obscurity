@@ -1,9 +1,12 @@
-#ifndef DNest4_Template_MyModel
-#define DNest4_Template_MyModel
+#ifndef Obscurity_MyModel
+#define Obscurity_MyModel
 
 #include "DNest4/code/DNest4.h"
 #include <ostream>
 #include "Blobby.h"
+
+namespace Obscurity
+{
 
 class MyModel
 {
@@ -48,6 +51,8 @@ class MyModel
 		// Return string with column information
 		std::string description() const;
 };
+
+} // namespace Obscurity
 
 #endif
 

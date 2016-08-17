@@ -1,7 +1,10 @@
-#ifndef Lensing2_Blobby
-#define Lensing2_Blobby
+#ifndef Obscurity_Blobby
+#define Obscurity_Blobby
 
 #include "DNest4/code/DNest4.h"
+
+namespace Obscurity
+{
 
 class Blobby
 {
@@ -23,6 +26,8 @@ class Blobby
 		const DNest4::RJObject<DNest4::BasicCircular>& get_blobs() const
         { return blobs; }
 };
+
+} // namespace Obscurity
 
 #endif
 

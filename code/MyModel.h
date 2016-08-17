@@ -3,6 +3,7 @@
 
 #include "DNest4/code/DNest4.h"
 #include <ostream>
+#include "Data.h"
 #include "Blobby.h"
 
 namespace Obscurity
@@ -11,6 +12,9 @@ namespace Obscurity
 class MyModel
 {
 	private:
+        static Data data;
+        static void load_data(const char* filename);
+
         // Image size
         static constexpr double x_min = -1.0;
         static constexpr double x_max =  1.0;

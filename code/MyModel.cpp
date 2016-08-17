@@ -5,9 +5,18 @@
 namespace Obscurity
 {
 
+// STATIC STUFF
+Data MyModel::data;
+
 const double MyModel::dx = (MyModel::x_max - MyModel::x_min)/MyModel::nj;
 const double MyModel::dy = (MyModel::y_max - MyModel::y_min)/MyModel::ni;
 
+void MyModel::load_data(const char* filename)
+{
+    data.load(filename);
+}
+
+// CONSTRUCTOR AND MEMBER FUNCTIONS
 MyModel::MyModel()
 :blobs(x_min, x_max, y_min, y_max)
 ,image(ni, std::vector<double>(nj, 0.0))

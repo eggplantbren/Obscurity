@@ -36,6 +36,11 @@ MyModel::MyModel()
 void MyModel::from_prior(DNest4::RNG& rng)
 {
     blobs.from_prior(rng);
+    x0 = x_min - (x_max - x_min) + (x_max - x_min)*rng.rand();
+
+    DNest4::Cauchy c(0.0, data.get_t_range());
+    timescale = std::abs(c.generate(rng));
+
     calculate_image();
 }
 
@@ -67,7 +72,22 @@ double MyModel::perturb(DNest4::RNG& rng)
 {
 	double logH = 0.0;
 
-    logH += blobs.perturb(rng);
+    if(rng.rand() <= 0.7)
+    {
+        logH += blobs.perturb(rng);
+    }
+    else if(rng.rand() <= 0.5)
+    {
+        x0 += (x_max - x_min)*rng.randh();
+        DNest4::wrap(x0, x_min - (x_max - x_min), 0.0);
+    }
+    else
+    {
+        DNest4::Cauchy c(0.0, data.get_t_range());
+        logH += c.perturb(timescale, rng);
+        timescale = std::abs(timescale);
+    }
+
     calculate_image();
 
 	return logH;
@@ -81,9 +101,11 @@ double MyModel::log_likelihood() const
 
 void MyModel::print(std::ostream& out) const
 {
-    for(size_t i=0; i<image.size(); ++i)
-        for(size_t j=0; j<image.size(); ++j)
-            out<<image[i][j]<<' ';
+    out<<x0<<' '<<timescale<<' ';
+
+//    for(size_t i=0; i<image.size(); ++i)
+//        for(size_t j=0; j<image.size(); ++j)
+//            out<<image[i][j]<<' ';
 }
 
 std::string MyModel::description() const

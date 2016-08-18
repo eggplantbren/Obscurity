@@ -13,7 +13,6 @@ class MyModel
 {
 	private:
         static Data data;
-        static void load_data(const char* filename);
 
         // Image size
         static constexpr double x_min = -1.0;
@@ -26,6 +25,9 @@ class MyModel
 
         // Obscuring blobs
         Blobby blobs;
+
+        // Initial positional offset of blobs, and their crossing timescale
+        double x0, timescale;
 
         // Image of a unit circle obscured by the blobs
         std::vector<std::vector<double>> image;
@@ -54,6 +56,8 @@ class MyModel
 
 		// Return string with column information
 		std::string description() const;
+
+        static void load_data(const char* filename);
 };
 
 } // namespace Obscurity

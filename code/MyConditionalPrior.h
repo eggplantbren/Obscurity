@@ -1,11 +1,20 @@
-#ifndef DNest4_Template_MyConditionalPrior
-#define DNest4_Template_MyConditionalPrior
+#ifndef Obscurity_MyConditionalPrior
+#define Obscurity_MyConditionalPrior
 
 #include "DNest4/code/DNest4.h"
+
+namespace Obscurity
+{
 
 class MyConditionalPrior:public DNest4::ConditionalPrior
 {
 	private:
+        // Width of conditional prior for positions
+        double sigma;
+
+        // Expected value of conditional prior for "masses" and widths of blobs
+        double mu_mass;
+        double mu_width;
 
 		double perturb_hyperparameters(DNest4::RNG& rng);
 
@@ -21,6 +30,8 @@ class MyConditionalPrior:public DNest4::ConditionalPrior
 		void print(std::ostream& out) const;
 		static const int weight_parameter = 1;
 };
+
+} // namespace Obscurity
 
 #endif
 

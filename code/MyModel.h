@@ -14,6 +14,19 @@ class MyModel
 	private:
         static Data data;
 
+//        // Image size parameters
+//        static constexpr size_t ni = 1001;
+//        static constexpr size_t nj = 1001;
+//        static constexpr double x_min = -1.0;
+//        static constexpr double x_max =  1.0;
+//        static constexpr double y_min = -1.0;
+//        static constexpr double y_max =  1.0;
+//        static constexpr double dx = (x_max - x_min)/nj;
+//        static constexpr double dy = (y_max - y_min)/ni;
+
+//        // Coordinates of pixel centers
+//        std::vector<double> x, y;
+
         // Obscuring blobs
         DNest4::RJObject<MyConditionalPrior> blobs;
 

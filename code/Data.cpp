@@ -1,6 +1,7 @@
 #include "Data.h"
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 namespace Obscurity
 {
@@ -30,6 +31,11 @@ void Data::load(const char* filename)
         y.push_back(temp2);
         sig.push_back(temp3);
     }
+
+    t_min = *std::min_element(t.begin(), t.end());
+    t_max = *std::max_element(t.begin(), t.end());
+    t_range = t_max - t_min;
+
     std::cout<<"# Loaded "<<t.size()<<" data points from file ";
     std::cout<<filename<<'.'<<std::endl;
 

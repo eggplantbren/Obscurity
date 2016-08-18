@@ -1,30 +1,16 @@
 #include "MyModel.h"
 #include "DNest4/code/DNest4.h"
 #include <stdexcept>
+#include <armadillo>
 
 namespace Obscurity
 {
 
-// STATIC STUFF
-Data MyModel::data;
-
-void MyModel::load_data(const char* filename)
-{
-    data.load(filename);
-}
-
 // CONSTRUCTOR AND MEMBER FUNCTIONS
 MyModel::MyModel()
-//:x(nj)
-//,y(ni)
-//
-:blobs(3, 100, false, MyConditionalPrior(), DNest4::PriorType::log_uniform)
+:blobs(4, 100, false, MyConditionalPrior(), DNest4::PriorType::log_uniform)
 {
-//    for(size_t i=0; i<ni; ++i)
-//        y[i] = y_max - (i + 0.5)*dy;
 
-//    for(size_t j=0; j<nj; ++j)
-//        x[j] = x_min + (j + 0.5)*dx;
 }
 
 void MyModel::from_prior(DNest4::RNG& rng)
@@ -77,30 +63,48 @@ double MyModel::log_likelihood() const
 //    const auto& y = data.get_y();
 //    const auto& sig = data.get_sig();
 
-    const auto& _blobs = blobs.get_components();
-    double lost_flux = 0.0;
-    double R = 1.0; double Rsq = R*R;
-    double r, rsq, d, dsq, overlap_area;
-    for(size_t b=0; b<_blobs.size(); ++b)
-    {
-        overlap_area = 0.0;
-        r = _blobs[b][3];
-        rsq = r*r;
-        dsq = _blobs[b][0]*_blobs[b][0] + _blobs[b][1]*_blobs[b][1];
-        d = sqrt(dsq);
-        if(d < r + R)
-        {
-            // See Wolfram article at
-            // http://mathworld.wolfram.com/Circle-CircleIntersection.html
-            overlap_area = rsq*acos((dsq + rsq - Rsq)/(2*d*r))
-                                    + Rsq*acos((dsq + Rsq - rsq)/(2*d*R))
-                            -0.5*sqrt((-d+r+R)*(d+r-R)*(d-r+R)*(d+r+R));
+    arma::mat star(ni, nj);
+    arma::mat obscurer(ni, nj);
 
-            lost_flux += _blobs[b][2]*overlap_area;
-        }
-        std::cout<<r<<' '<<rsq<<' '<<dsq<<' '<<d<<' '<<overlap_area<<' '<<lost_flux<<std::endl;
+
+
+    // Obscurer image
+    for(size_t j=0; j<nj; ++j)
+        for(size_t i=0; i<ni; ++i)
+            obscurer(i, j) = 0.0;
+
+    const auto& blobs_params = blobs.get_components();
+    int i_min, i_max, j_min, j_max;
+    for(const auto& blob_params: blobs_params)
+    {
+        // Determine square patch of image to loop over
+        i_min = (int)floor(((y_max - 0.5*dy) - (blob_params[1] + blob_params[3]))/dy);
+        i_max = (int)floor(((y_max - 0.5*dy) - (blob_params[1] - blob_params[3]))/dy);
+        j_min = (int)floor(((blob_params[0] - blob_params[3]) - (x_min + 0.5*dx))/dx);
+        j_max = (int)floor(((blob_params[0] + blob_params[3]) - (x_min + 0.5*dx))/dx);
+
+        if(i_min < 0)
+            i_min = 0;
+        if(i_max < 0)
+            i_max = 0;
+        if(j_min < 0)
+            j_min = 0;
+        if(j_max < 0)
+            j_max = 0;
+
+        if(i_min >= (int)ni)
+            i_min = ni - 1;
+        if(i_max >= (int)ni)
+            i_max = ni - 1;
+        if(j_min >= (int)nj)
+            j_min = nj - 1;
+        if(j_max >= (int)nj)
+            j_max = nj - 1;
+
+        for(int j=j_min; j<=j_max; ++j)
+            for(int i=i_min; i<=i_max; ++i)
+                obscurer(i, j) += evaluate_blob(blob_params, x[j], y[i]);
     }
-    exit(0);
 
 	return logL;
 }
@@ -116,6 +120,58 @@ std::string MyModel::description() const
 {
 	return std::string("");
 }
+
+/* STATIC STUFF */
+
+Data                  MyModel::data;
+arma::mat             MyModel::star(MyModel::ni, MyModel::nj);
+std::vector<double>   MyModel::x(MyModel::nj);
+std::vector<double>   MyModel::y(MyModel::ni);
+
+void MyModel::initialise()
+{
+    for(size_t i=0; i<ni; ++i)
+        y[i] = y_max - (i + 0.5)*dy;
+
+    for(size_t j=0; j<nj; ++j)
+        x[j] = x_min + (j + 0.5)*dx;
+
+    double rsq;
+
+    // Argh column-major order
+    // Star image
+    for(size_t j=0; j<nj; ++j)
+    {
+        for(size_t i=0; i<ni; ++i)
+        {
+            rsq = x[j]*x[j] + y[i]*y[i];
+            if(rsq <= 1.0)
+                star(i, j) = 1.0;
+            else
+                star(i, j) = 0.0;
+        }
+    }
+}
+
+void MyModel::load_data(const char* filename)
+{
+    data.load(filename);
+}
+
+double MyModel::evaluate_blob(const std::vector<double>& blob_params,
+                                                        double x, double y)
+{
+    static constexpr double C = 2/M_PI;
+
+    double rsq = pow(x - blob_params[0], 2) + pow(y - blob_params[1], 2);
+    double widthsq = blob_params[3]*blob_params[3];
+
+    if(rsq >= widthsq)
+        return 0.0;
+
+    return C*blob_params[2]*(1.0 - rsq/widthsq)/widthsq;
+}
+
 
 } // namespace Obscurity
 

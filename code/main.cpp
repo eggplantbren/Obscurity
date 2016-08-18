@@ -5,6 +5,8 @@
 int main(int argc, char** argv)
 {
     Obscurity::MyModel::load_data("data.txt");
+    Obscurity::MyModel::initialise();
+
     DNest4::start<Obscurity::MyModel>(argc, argv);
     return 0;
 }

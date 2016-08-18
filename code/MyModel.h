@@ -3,9 +3,8 @@
 
 #include "DNest4/code/DNest4.h"
 #include <ostream>
-#include <tuple>
 #include "Data.h"
-#include "Blobby.h"
+#include "MyConditionalPrior.h"
 
 namespace Obscurity
 {
@@ -16,7 +15,7 @@ class MyModel
         static Data data;
 
         // Obscuring blobs
-        Blobby blobs;
+        DNest4::RJObject<MyConditionalPrior> blobs;
 
         // Initial positional offset of blobs, and their crossing timescale
         double x0, timescale;

@@ -15,7 +15,7 @@ void MyModel::load_data(const char* filename)
 
 // CONSTRUCTOR AND MEMBER FUNCTIONS
 MyModel::MyModel()
-:blobs(-1.0, 1.0, -1.0, 1.0)
+:blobs(3, 100, false, MyConditionalPrior(), DNest4::PriorType::log_uniform)
 {
 
 }

@@ -43,6 +43,7 @@ void MyModel::calculate_image()
 {
     double star_density = 1.0/M_PI;
     double rsq;
+    double f;
     for(size_t i=0; i<image.size(); ++i)
     {
         for(size_t j=0; j<image.size(); ++j)
@@ -50,7 +51,11 @@ void MyModel::calculate_image()
             rsq = x[j]*x[j] + y[i]*y[i];
             if(rsq < 1.0)
             {
-                image[i][j] = star_density*exp(-blobs.evaluate(x[j], y[i]));
+                f = blobs.evaluate(x[j], y[i]);
+                if(f < 10.0)
+                    image[i][j] = star_density*exp(-f);
+                else
+                    image[i][j] = 0.0;
             }
             else
                 image[i][j] = 0.0;

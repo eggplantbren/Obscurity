@@ -20,8 +20,8 @@ class MyModel
         static constexpr double x_max =  1.0;
         static constexpr double y_min = -1.0;
         static constexpr double y_max =  1.0;
-        static constexpr size_t ni = 101;
-        static constexpr size_t nj = 101;
+        static constexpr size_t ni = 201;
+        static constexpr size_t nj = 201;
         static const double dx, dy;
 
         // Obscuring blobs

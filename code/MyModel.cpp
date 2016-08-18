@@ -19,7 +19,6 @@ void MyModel::load_data(const char* filename)
 // CONSTRUCTOR AND MEMBER FUNCTIONS
 MyModel::MyModel()
 :blobs(x_min, x_max, y_min, y_max)
-,image(ni, std::vector<double>(nj, 0.0))
 ,x(nj)
 ,y(ni)
 {
@@ -40,12 +39,15 @@ void MyModel::from_prior(DNest4::RNG& rng)
 
     DNest4::Cauchy c(0.0, data.get_t_range());
     timescale = std::abs(c.generate(rng));
-
-    calculate_image();
 }
 
-void MyModel::calculate_image()
+std::vector<std::vector<double>> MyModel::calculate_image(double time) const
 {
+    std::vector<std::vector<double>> image(ni, std::vector<double>(nj));
+
+    double speed = 1.0/timescale;
+    double offset = x0 + speed*time;
+
     double star_density = 1.0/M_PI;
     double rsq;
     double f;
@@ -56,7 +58,7 @@ void MyModel::calculate_image()
             rsq = x[j]*x[j] + y[i]*y[i];
             if(rsq < 1.0)
             {
-                f = blobs.evaluate(x[j], y[i]);
+                f = blobs.evaluate(x[j] - offset, y[i]);
                 if(f < 10.0)
                     image[i][j] = star_density*exp(-f);
                 else
@@ -66,6 +68,8 @@ void MyModel::calculate_image()
                 image[i][j] = 0.0;
         }
     }
+
+    return image;
 }
 
 double MyModel::perturb(DNest4::RNG& rng)
@@ -87,15 +91,30 @@ double MyModel::perturb(DNest4::RNG& rng)
         logH += c.perturb(timescale, rng);
         timescale = std::abs(timescale);
     }
-
-    calculate_image();
-
 	return logH;
 }
 
 double MyModel::log_likelihood() const
 {
 	double logL = 0.0;
+
+    const auto& t = data.get_t();
+    const auto& y = data.get_y();
+    const auto& sig = data.get_sig();
+
+    double tot, integral;
+    for(size_t k=0; k<y.size(); ++k)
+    {
+        auto image = calculate_image(t[k]);
+        tot = 0.0;
+        for(size_t i=0; i<ni; ++i)
+            for(size_t j=0; j<nj; ++j)
+                tot += image[i][j];
+        integral = tot*dx*dy;
+
+        logL += -0.5*log(2*M_PI) - log(sig[k])
+                    -0.5*pow((y[k] - integral)/sig[k], 2);
+    }
 	return logL;
 }
 

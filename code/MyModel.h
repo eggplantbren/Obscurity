@@ -29,14 +29,11 @@ class MyModel
         // Initial positional offset of blobs, and their crossing timescale
         double x0, timescale;
 
-        // Image of a unit circle obscured by the blobs
-        std::vector<std::vector<double>> image;
-
         // Coordinates of centers of pixels
         std::vector<double> x, y;
 
-        // Calculate the image
-        void calculate_image();
+        // Calculate the image at a given time
+        std::vector<std::vector<double>> calculate_image(double time) const;
 
 	public:
 		// Constructor only gives size of params

@@ -3,6 +3,7 @@
 
 #include "DNest4/code/DNest4.h"
 #include <ostream>
+#include <tuple>
 #include "Data.h"
 #include "Blobby.h"
 
@@ -29,11 +30,8 @@ class MyModel
         // Initial positional offset of blobs, and their crossing timescale
         double x0, timescale;
 
-        // Coordinates of centers of pixels
-        std::vector<double> x, y;
-
-        // Calculate the image at a given time
-        std::vector<std::vector<double>> calculate_image(double time) const;
+        // Calculate the total flux
+        double calculate_total_flux(double time) const;
 
 	public:
 		// Constructor only gives size of params

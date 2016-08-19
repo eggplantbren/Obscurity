@@ -9,6 +9,8 @@ namespace Obscurity
 // CONSTRUCTOR AND MEMBER FUNCTIONS
 MyModel::MyModel()
 :blobs(4, 100, false, MyConditionalPrior(), DNest4::PriorType::log_uniform)
+,obscurer_map(ni, nj)
+,fft_of_obscurer_map(ni, nj)
 {
 
 }
@@ -63,15 +65,15 @@ double MyModel::log_likelihood() const
 //    const auto& y = data.get_y();
 //    const auto& sig = data.get_sig();
 
-    arma::mat star(ni, nj);
-    arma::mat obscurer(ni, nj);
+	return logL;
+}
 
-
-
+void MyModel::calculate_obscurer_map()
+{
     // Obscurer image
     for(size_t j=0; j<nj; ++j)
         for(size_t i=0; i<ni; ++i)
-            obscurer(i, j) = 0.0;
+            obscurer_map(i, j) = 0.0;
 
     const auto& blobs_params = blobs.get_components();
     int i_min, i_max, j_min, j_max;
@@ -103,10 +105,10 @@ double MyModel::log_likelihood() const
 
         for(int j=j_min; j<=j_max; ++j)
             for(int i=i_min; i<=i_max; ++i)
-                obscurer(i, j) += evaluate_blob(blob_params, x[j], y[i]);
+                obscurer_map(i, j) += evaluate_blob(blob_params, x[j], y[i]);
     }
 
-	return logL;
+    fft_of_obscurer_map = arma::fft2(obscurer_map);
 }
 
 void MyModel::print(std::ostream& out) const
@@ -125,6 +127,7 @@ std::string MyModel::description() const
 
 Data                  MyModel::data;
 arma::mat             MyModel::star(MyModel::ni, MyModel::nj);
+arma::cx_mat          MyModel::fft_of_star(MyModel::ni, MyModel::nj);
 std::vector<double>   MyModel::x(MyModel::nj);
 std::vector<double>   MyModel::y(MyModel::ni);
 
@@ -151,6 +154,8 @@ void MyModel::initialise()
                 star(i, j) = 0.0;
         }
     }
+
+    fft_of_star = arma::fft2(star);
 }
 
 void MyModel::load_data(const char* filename)

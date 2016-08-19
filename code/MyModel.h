@@ -13,11 +13,16 @@ namespace Obscurity
 class MyModel
 {
 	private:
-        // Obscuring blobs
+        // Obscuring blobs, and their image
         DNest4::RJObject<MyConditionalPrior> blobs;
+        arma::mat obscurer_map;
+        arma::cx_mat fft_of_obscurer_map;
 
         // Initial positional offset of blobs, and their crossing timescale
         double x0, timescale;
+
+        // Calculate the obscurer map
+        void calculate_obscurer_map();
 
         // Calculate the total flux
         double calculate_total_flux(double time) const;
@@ -47,10 +52,10 @@ class MyModel
         static Data data;
 
         // Image size parameters
-        static constexpr size_t ni = 1001;
-        static constexpr size_t nj = 1001;
-        static constexpr double x_min = -1.0;
-        static constexpr double x_max =  1.0;
+        static constexpr size_t ni = 101;
+        static constexpr size_t nj = 201;
+        static constexpr double x_min = -2.0;
+        static constexpr double x_max =  2.0;
         static constexpr double y_min = -1.0;
         static constexpr double y_max =  1.0;
         static constexpr double dx = (x_max - x_min)/nj;
@@ -58,6 +63,7 @@ class MyModel
 
         // Star image
         static arma::mat star;
+        static arma::cx_mat fft_of_star;
 
         // Evaluate a blob (this defines functional form of blobs)
         static double evaluate_blob(const std::vector<double>& blob_params,

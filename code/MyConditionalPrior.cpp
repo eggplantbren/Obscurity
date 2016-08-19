@@ -13,7 +13,7 @@ MyConditionalPrior::MyConditionalPrior()
 
 void MyConditionalPrior::from_prior(DNest4::RNG& rng)
 {
-    DNest4::Cauchy c;
+    static const DNest4::Cauchy c;
     sigma = std::abs(c.generate(rng));
 
     mu_mass = exp(log(1E-3) + log(1E3)*rng.rand());
@@ -24,7 +24,28 @@ double MyConditionalPrior::perturb_hyperparameters(DNest4::RNG& rng)
 {
 	double logH = 0.0;
 
+    int which = rng.rand_int(3);
+    static const DNest4::Cauchy c;
 
+    if(which == 0)
+    {
+        logH += c.perturb(sigma, rng);
+        sigma = std::abs(sigma);
+    }
+    else if(which == 1)
+    {
+        mu_mass = log(mu_mass);
+        mu_mass += log(1E3)*rng.randh();
+        DNest4::wrap(mu_mass, log(1E-3), log(1.0));
+        mu_mass = exp(mu_mass);
+    }
+    else
+    {
+        mu_width = log(mu_width);
+        mu_width += log(1E3)*rng.randh();
+        DNest4::wrap(mu_width, log(1E-3), log(1.0));
+        mu_width = exp(mu_width);
+    }
 
 	return logH;
 }

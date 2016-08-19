@@ -2,7 +2,7 @@
 # called DNEST4_PATH for this to work.
 
 CC = g++
-CXXFLAGS = -std=c++11 -O0 -g -Wall -Wextra -pedantic -DNDEBUG
+CXXFLAGS = -std=c++11 -O3 -Wall -Wextra -pedantic -DARMA_NO_DEBUG -DNDEBUG
 LIBS = -ldnest4 -lpthread
 
 default:

@@ -118,7 +118,7 @@ void MyModel::calculate_obscurer_map()
 
         for(int j=j_min; j<=j_max; ++j)
             for(int i=i_min; i<=i_max; ++i)
-                obscurer_map(i, j) -= exp(-evaluate_blob(blob_params, x[j], y[i]));
+                obscurer_map(i, j) *= 1.0 - exp(-evaluate_blob(blob_params, x[j], y[i]));
     }
 
     // FFT of obscurer_map
@@ -141,6 +141,10 @@ void MyModel::print(std::ostream& out) const
     const auto& t = data.get_t();
     for(size_t i=0; i<t.size(); ++i)
         out<<calculate_total_flux(t[i])<<' ';
+
+    for(size_t i=0; i<ni; ++i)
+        for(size_t j=0; j<nj; ++j)
+            out<<star(i, j)*obscurer_map(i, j)<<' ';
 }
 
 std::string MyModel::description() const

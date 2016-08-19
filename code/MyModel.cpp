@@ -168,6 +168,7 @@ void MyModel::initialise()
 
     // Argh column-major order
     // Star image
+    double tot = 0.0;
     for(size_t j=0; j<nj; ++j)
     {
         for(size_t i=0; i<ni; ++i)
@@ -177,8 +178,12 @@ void MyModel::initialise()
                 star(i, j) = 1.0;
             else
                 star(i, j) = 0.0;
+            tot += star(i, j);
         }
     }
+    for(size_t j=0; j<nj; ++j)
+        for(size_t i=0; i<ni; ++i)
+            star(i, j) /= tot;
 
     fft_of_star = arma::fft2(star);
 }

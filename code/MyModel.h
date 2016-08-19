@@ -16,7 +16,7 @@ class MyModel
         // Obscuring blobs, and their image
         DNest4::RJObject<MyConditionalPrior> blobs;
         arma::mat obscurer_map;
-        arma::cx_mat fft_of_obscurer_map;
+        arma::mat convolved;
 
         // Initial positional offset of blobs, and their crossing timescale
         double x0, timescale;

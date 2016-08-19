@@ -8,9 +8,9 @@ namespace Obscurity
 
 // CONSTRUCTOR AND MEMBER FUNCTIONS
 MyModel::MyModel()
-:blobs(4, 100, false, MyConditionalPrior(), DNest4::PriorType::log_uniform)
+:blobs(4, 100, false, MyConditionalPrior())
 ,obscurer_map(ni, nj)
-,fft_of_obscurer_map(ni, nj)
+,convolved(ni, nj)
 {
 
 }
@@ -24,6 +24,8 @@ void MyModel::from_prior(DNest4::RNG& rng)
 
     DNest4::Cauchy c2(0.0, data.get_t_range());
     timescale = std::abs(c2.generate(rng));
+
+    calculate_obscurer_map();
 }
 
 double MyModel::calculate_total_flux(double time) const
@@ -31,7 +33,8 @@ double MyModel::calculate_total_flux(double time) const
     double speed = 1.0/timescale;
     double offset = x0 + speed*time;
 
-    return 0.0;
+    int j = (int)floor((offset - (x_min + 0.5*dx))/dx);
+    return convolved(ni/2, j%nj);
 }
 
 double MyModel::perturb(DNest4::RNG& rng)
@@ -41,6 +44,8 @@ double MyModel::perturb(DNest4::RNG& rng)
     if(rng.rand() <= 0.7)
     {
         logH += blobs.perturb(rng);
+        if(blobs.components_changed())
+            calculate_obscurer_map();
     }
     else if(rng.rand() <= 0.5)
     {
@@ -61,9 +66,17 @@ double MyModel::log_likelihood() const
 {
 	double logL = 0.0;
 
-//    const auto& t = data.get_t();
-//    const auto& y = data.get_y();
-//    const auto& sig = data.get_sig();
+    const auto& t = data.get_t();
+    const auto& y = data.get_y();
+    const auto& sig = data.get_sig();
+
+    double model_prediction;
+    for(size_t i=0; i<t.size(); ++i)
+    {
+        model_prediction = calculate_total_flux(t[i]);
+        logL += -0.5*log(2*M_PI) - log(sig[i])
+                    - 0.5*pow((y[i] - model_prediction)/sig[i], 2);
+    }
 
 	return logL;
 }
@@ -73,7 +86,7 @@ void MyModel::calculate_obscurer_map()
     // Obscurer image
     for(size_t j=0; j<nj; ++j)
         for(size_t i=0; i<ni; ++i)
-            obscurer_map(i, j) = 0.0;
+            obscurer_map(i, j) = 1.0;
 
     const auto& blobs_params = blobs.get_components();
     int i_min, i_max, j_min, j_max;
@@ -105,17 +118,29 @@ void MyModel::calculate_obscurer_map()
 
         for(int j=j_min; j<=j_max; ++j)
             for(int i=i_min; i<=i_max; ++i)
-                obscurer_map(i, j) += evaluate_blob(blob_params, x[j], y[i]);
+                obscurer_map(i, j) -= exp(-evaluate_blob(blob_params, x[j], y[i]));
     }
 
-    fft_of_obscurer_map = arma::fft2(obscurer_map);
+    // FFT of obscurer_map
+    arma::cx_mat A = arma::fft2(obscurer_map);
+
+    // (FFT of obscurer map)*(FFT of star map)
+    for(size_t j=0; j<nj; ++j)
+        for(size_t i=0; i<ni; ++i)
+            A(i, j) *= fft_of_star(i, j);
+
+    // obscurer map convolved with star map
+    A = arma::ifft2(A);
+    for(size_t i=0; i<ni; ++i)
+        for(size_t j=0; j<nj; ++j)
+            convolved(i, j) = A(i, j).real();
 }
 
 void MyModel::print(std::ostream& out) const
 {
-//    if(std::abs(dx - dy) > 1E-6*sqrt(dx*dy))
-//        throw std::domain_error("Non-square pixels.");
-
+    const auto& t = data.get_t();
+    for(size_t i=0; i<t.size(); ++i)
+        out<<calculate_total_flux(t[i])<<' ';
 }
 
 std::string MyModel::description() const

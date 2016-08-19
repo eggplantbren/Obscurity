@@ -17,7 +17,7 @@ void MyConditionalPrior::from_prior(DNest4::RNG& rng)
     sigma = std::abs(c.generate(rng));
 
     mu_mass = exp(log(1E-3) + log(1E3)*rng.rand());
-    mu_width = exp(log(1E-3) + log(1E3)*rng.rand());
+    max_width = exp(log(1E-3) + log(1E3)*rng.rand());
 }
 
 double MyConditionalPrior::perturb_hyperparameters(DNest4::RNG& rng)
@@ -41,10 +41,10 @@ double MyConditionalPrior::perturb_hyperparameters(DNest4::RNG& rng)
     }
     else
     {
-        mu_width = log(mu_width);
-        mu_width += log(1E3)*rng.randh();
-        DNest4::wrap(mu_width, log(1E-3), log(1.0));
-        mu_width = exp(mu_width);
+        max_width = log(max_width);
+        max_width += log(1E3)*rng.randh();
+        DNest4::wrap(max_width, log(1E-3), log(1.0));
+        max_width = exp(max_width);
     }
 
 	return logH;
@@ -56,13 +56,13 @@ double MyConditionalPrior::log_pdf(const std::vector<double>& vec) const
 {
     double logp = 0.0;
 
-    if(vec[2] < 0 || vec[3] < 0)
+    if(vec[2] < 0 || vec[3] < 0 || vec[3] > max_width)
         return -1E300;
 
     logp += -log(2*M_PI*sigma*sigma)
                 -0.5*(vec[0]*vec[0] + vec[1]*vec[1])/(sigma*sigma);
     logp += -log(mu_mass) - vec[2]/mu_mass;
-    logp += -log(mu_width) - vec[3]/mu_width;    
+    logp += -log(max_width);    
 
 	return logp;
 }
@@ -73,7 +73,7 @@ void MyConditionalPrior::from_uniform(std::vector<double>& vec) const
     vec[0] = sigma*quantile(standard_normal, vec[0]);
     vec[1] = sigma*quantile(standard_normal, vec[1]);
     vec[2] = -mu_mass*log(1.0 - vec[2]);
-    vec[3] = -mu_width*log(1.0 - vec[3]);
+    vec[3] = max_width*vec[3];
 }
 
 void MyConditionalPrior::to_uniform(std::vector<double>& vec) const
@@ -82,7 +82,7 @@ void MyConditionalPrior::to_uniform(std::vector<double>& vec) const
     vec[0] = cdf(standard_normal, vec[0]/sigma);
     vec[1] = cdf(standard_normal, vec[1]/sigma);
     vec[2] = 1.0 - exp(-vec[2]/mu_mass);
-    vec[3] = 1.0 - exp(-vec[3]/mu_width);
+    vec[3] = vec[3]/max_width;
 }
 
 void MyConditionalPrior::print(std::ostream& out) const

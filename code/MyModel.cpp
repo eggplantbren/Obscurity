@@ -22,7 +22,7 @@ void MyModel::from_prior(DNest4::RNG& rng)
     DNest4::Cauchy c1(0.0, 1.0);
     x0 = -std::abs(c1.generate(rng));
 
-    DNest4::Cauchy c2(0.0, data.get_t_range());
+    DNest4::Cauchy c2(0.0, 0.1*data.get_t_range());
     timescale = std::abs(c2.generate(rng));
 
     calculate_obscurer_map();
@@ -55,7 +55,7 @@ double MyModel::perturb(DNest4::RNG& rng)
     }
     else
     {
-        DNest4::Cauchy c(0.0, data.get_t_range());
+        DNest4::Cauchy c(0.0, 0.1*data.get_t_range());
         logH += c.perturb(timescale, rng);
         timescale = std::abs(timescale);
     }
@@ -86,7 +86,7 @@ void MyModel::calculate_obscurer_map()
     // Obscurer image
     for(size_t j=0; j<nj; ++j)
         for(size_t i=0; i<ni; ++i)
-            obscurer_map(i, j) = 1.0;
+            obscurer_map(i, j) = 0.0;
 
     const auto& blobs_params = blobs.get_components();
     int i_min, i_max, j_min, j_max;
@@ -118,8 +118,11 @@ void MyModel::calculate_obscurer_map()
 
         for(int j=j_min; j<=j_max; ++j)
             for(int i=i_min; i<=i_max; ++i)
-                obscurer_map(i, j) *= 1.0 - exp(-evaluate_blob(blob_params, x[j], y[i]));
+                obscurer_map(i, j) += evaluate_blob(blob_params, x[j], y[i]);
     }
+    for(size_t j=0; j<nj; ++j)
+        for(size_t i=0; i<ni; ++i)
+            obscurer_map(i, j) = exp(-obscurer_map(i, j));
 
     // FFT of obscurer_map
     arma::cx_mat A = arma::fft2(obscurer_map);
@@ -142,9 +145,10 @@ void MyModel::print(std::ostream& out) const
     for(size_t i=0; i<t.size(); ++i)
         out<<calculate_total_flux(t[i])<<' ';
 
+    double star_max = star.max();
     for(size_t i=0; i<ni; ++i)
         for(size_t j=0; j<nj; ++j)
-            out<<star(i, j)*obscurer_map(i, j)<<' ';
+            out<<0.5*(1.0 + star(i, j)/star_max)*obscurer_map(i, j)<<' ';
 }
 
 std::string MyModel::description() const

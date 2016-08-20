@@ -149,10 +149,13 @@ void MyModel::print(std::ostream& out) const
     for(size_t i=0; i<t.size(); ++i)
         out<<calculate_total_flux(t[i])<<' ';
 
-    double star_max = star.max();
     for(size_t i=0; i<ni; ++i)
         for(size_t j=0; j<nj; ++j)
-            out<<0.5*(1.0 + star(i, j)/star_max)*obscurer_map(i, j)<<' ';
+            out<<star(i, j)<<' ';
+
+    for(size_t i=0; i<ni; ++i)
+        for(size_t j=0; j<nj; ++j)
+            out<<obscurer_map(i, j)<<' ';
 }
 
 std::string MyModel::description() const

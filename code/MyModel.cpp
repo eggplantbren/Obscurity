@@ -90,13 +90,17 @@ void MyModel::calculate_obscurer_map()
 
     const auto& blobs_params = blobs.get_components();
     int i_min, i_max, j_min, j_max;
+    double width;
+
     for(const auto& blob_params: blobs_params)
     {
+        width = blob_params[3]*LL;
+
         // Determine square patch of image to loop over
-        i_min = (int)floor(((y_max - 0.5*dy) - (blob_params[1] + blob_params[3]))/dy);
-        i_max = (int)floor(((y_max - 0.5*dy) - (blob_params[1] - blob_params[3]))/dy);
-        j_min = (int)floor(((blob_params[0] - blob_params[3]) - (x_min + 0.5*dx))/dx);
-        j_max = (int)floor(((blob_params[0] + blob_params[3]) - (x_min + 0.5*dx))/dx);
+        i_min = (int)floor(((y_max - 0.5*dy) - (blob_params[1] + width))/dy);
+        i_max = (int)floor(((y_max - 0.5*dy) - (blob_params[1] - width))/dy);
+        j_min = (int)floor(((blob_params[0] - width) - (x_min + 0.5*dx))/dx);
+        j_max = (int)floor(((blob_params[0] + width) - (x_min + 0.5*dx))/dx);
 
         if(i_min < 0)
             i_min = 0;
@@ -207,7 +211,7 @@ double MyModel::evaluate_blob(const std::vector<double>& blob_params,
     static constexpr double C = 2/M_PI;
 
     double rsq = pow(x - blob_params[0], 2) + pow(y - blob_params[1], 2);
-    double widthsq = blob_params[3]*blob_params[3];
+    double widthsq = blob_params[3]*blob_params[3]*LL*LL;
 
     if(rsq >= widthsq)
         return 0.0;

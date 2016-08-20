@@ -60,6 +60,7 @@ class MyModel
         static constexpr double y_max =  2.0;
         static constexpr double dx = (x_max - x_min)/nj;
         static constexpr double dy = (y_max - y_min)/ni;
+        static constexpr double LL = sqrt(dx*dy);
 
         // Star image
         static arma::mat star;

@@ -14,7 +14,7 @@ class MyConditionalPrior:public DNest4::ConditionalPrior
 
         // Expected value of conditional prior for "masses" and widths of blobs
         double mu_mass;
-        double max_width;
+        double mu_width;
 
 		double perturb_hyperparameters(DNest4::RNG& rng);
 

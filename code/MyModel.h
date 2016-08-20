@@ -52,8 +52,8 @@ class MyModel
         static Data data;
 
         // Image size parameters
-        static constexpr size_t ni = 51;
-        static constexpr size_t nj = 101;
+        static constexpr size_t ni = 101;
+        static constexpr size_t nj = 201;
         static constexpr double x_min = -4.0;
         static constexpr double x_max =  4.0;
         static constexpr double y_min = -2.0;

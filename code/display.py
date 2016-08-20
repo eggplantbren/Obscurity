@@ -18,12 +18,12 @@ for i in range(0, posterior_sample.shape[0]):
     line = line[data.shape[0]:]
 
     plt.subplot(3, 1, 2)
-    img = line[0:len(line)//2].reshape((51, 101))
+    img = line[0:len(line)//2].reshape((101, 201))
     plt.imshow(img, interpolation="nearest", cmap="viridis")
     line = line[len(line)//2:]
 
     plt.subplot(3, 1, 3)
-    img = line.reshape((51, 101))
+    img = line.reshape((101, 201))
     plt.imshow(img, interpolation="nearest", cmap="viridis")
     plt.show()
 

@@ -181,6 +181,8 @@ void MyModel::initialise()
 
     double rsq;
 
+    double limb_darkening_coefficient = 1.0;
+
     // Argh column-major order
     // Star image
     double tot = 0.0;
@@ -189,8 +191,11 @@ void MyModel::initialise()
         for(size_t i=0; i<ni; ++i)
         {
             rsq = x[j]*x[j] + y[i]*y[i];
-            if(rsq <= 1.0)
-                star(i, j) = 1.0;
+            if(rsq < 1.0)
+            {
+                star(i, j) = 1.0 -
+                    limb_darkening_coefficient*(1.0 - sqrt(1.0 - rsq));
+            }
             else
                 star(i, j) = 0.0;
             tot += star(i, j);

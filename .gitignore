@@ -1,0 +1,10 @@
+code/__pycache__/
+code/data.txt
+code/junk
+code/levels.txt
+code/main
+code/posterior_sample.txt
+code/sample.txt
+code/sample_info.txt
+code/sampler_state.txt
+code/weights.txt

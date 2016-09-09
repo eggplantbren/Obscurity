@@ -8,7 +8,7 @@ namespace Obscurity
 
 // CONSTRUCTOR AND MEMBER FUNCTIONS
 MyModel::MyModel()
-:blobs(4, 100, false, MyConditionalPrior(), DNest4::PriorType::log_uniform)
+:blobs(4, 1, true, MyConditionalPrior(), DNest4::PriorType::log_uniform)
 ,obscurer_map(ni, nj)
 ,convolved(ni, nj)
 {
@@ -39,7 +39,7 @@ double MyModel::calculate_total_flux(double time) const
 
 double MyModel::perturb(DNest4::RNG& rng)
 {
-	double logH = 0.0;
+    double logH = 0.0;
 
     if(rng.rand() <= 0.7)
     {
@@ -59,12 +59,12 @@ double MyModel::perturb(DNest4::RNG& rng)
         logH += c.perturb(timescale, rng);
         timescale = std::abs(timescale);
     }
-	return logH;
+    return logH;
 }
 
 double MyModel::log_likelihood() const
 {
-	double logL = 0.0;
+    double logL = 0.0;
 
     const auto& t = data.get_t();
     const auto& y = data.get_y();
@@ -78,7 +78,7 @@ double MyModel::log_likelihood() const
                     - 0.5*pow((y[i] - model_prediction)/sig[i], 2);
     }
 
-	return logL;
+    return logL;
 }
 
 void MyModel::calculate_obscurer_map()
@@ -160,7 +160,7 @@ void MyModel::print(std::ostream& out) const
 
 std::string MyModel::description() const
 {
-	return std::string("");
+    return std::string("");
 }
 
 /* STATIC STUFF */
@@ -205,7 +205,19 @@ void MyModel::initialise()
         for(size_t i=0; i<ni; ++i)
             star(i, j) /= tot;
 
-    fft_of_star = arma::fft2(star);
+    arma::mat star2 = star;
+    int m, n;
+    for(int i=0; i<(int)ni; i++)
+    {
+        m = DNest4::mod(i - (int)ni/2, (int)ni);
+        for(int j=0; j<(int)nj; j++)
+        {
+            n = DNest4::mod(j - (int)nj/2, (int)nj);
+            star2(m, n) = star(i, j);
+        }
+    }
+
+    fft_of_star = arma::fft2(star2);
 }
 
 void MyModel::load_data(const char* filename)

@@ -6,7 +6,7 @@ import dnest4.classic as dn4
 data = dn4.my_loadtxt("data.txt")
 posterior_sample = dn4.my_loadtxt("posterior_sample.txt")
 
-os.system("rm -rf Frames/")
+os.system("rm -rf Frames/ movie.mkv")
 os.mkdir("Frames")
 
 for i in range(0, posterior_sample.shape[0]):

@@ -8,7 +8,7 @@ namespace Obscurity
 
 // CONSTRUCTOR AND MEMBER FUNCTIONS
 MyModel::MyModel()
-:blobs(4, 1, true, MyConditionalPrior(), DNest4::PriorType::log_uniform)
+:blobs(4, 100, false, MyConditionalPrior(), DNest4::PriorType::log_uniform)
 ,obscurer_map(ni, nj)
 ,convolved(ni, nj)
 {

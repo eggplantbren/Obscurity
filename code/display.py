@@ -1,9 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 import dnest4.classic as dn4
 
 data = dn4.my_loadtxt("data.txt")
 posterior_sample = dn4.my_loadtxt("posterior_sample.txt")
+
+os.system("rm -rf Frames/")
+os.mkdir("Frames")
 
 for i in range(0, posterior_sample.shape[0]):
     line = posterior_sample[i, :].copy()
@@ -25,5 +29,11 @@ for i in range(0, posterior_sample.shape[0]):
     plt.subplot(3, 1, 3)
     img = line.reshape((101, 201))
     plt.imshow(img, interpolation="nearest", cmap="viridis")
-    plt.show()
+
+    plt.savefig("Frames/" + "%0.6d"%(i+1) + ".png", bbox_inches="tight")
+    print("Processed frame {k}/{n}.".format(k=(i+1),
+                        n=posterior_sample.shape[0]))
+
+# Make a movie with ffmpeg
+os.system("ffmpeg -r 10 -i Frames/%06d.png -c:v h264 -b:v 4192k movie.mkv")
 

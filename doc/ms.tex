@@ -108,7 +108,7 @@ Consider a coordinate system $(x,y)$ in units of the star's radius.
 The surface brightness profile
 $S(x, y)$ of the star uses the limb darkening profile
 \begin{align}
-S(x, y; b) &=
+S(x, y) &\propto
     \left\{
         \begin{array}{lr}
             1 - b\left(1 - \sqrt{1 - (x^2 + y^2)}\right),   & x^2+y^2 \leq 1\\
@@ -143,6 +143,20 @@ with masses $\{M_i\}$ and centers $\{(x_i, y_i)\}$, is
 \end{align}
 where $r_i = \sqrt{(x - x_i)^2 + (y - y_i)^2}$ is the distance of a point
 in the $x-y$ plane from the central position $(x_i, y_i)$ of blob $i$.
+
+If the blob density is taken as the optical depth, then the overall image
+of the star is
+\begin{align}
+I(x, y) &= S(x, y)e^{-\rho(x,y)}
+\end{align}
+and the observed total flux of the star is
+\begin{align}
+F &= \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
+        I(x, y) \, dx \, dy.
+\end{align}
+We define the normalizing constant of the star's surface brightness profile
+such that the total flux of the star would be 1 in the absence of any
+obscuration.
 
 \section*{Acknowledgements}
 This work was funded by a Marsden Fast Start grant from the Royal Society of

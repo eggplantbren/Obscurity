@@ -44,6 +44,8 @@
 \usepackage{amsmath}	% Advanced maths commands
 \usepackage{amssymb}	% Extra maths symbols
 
+\usepackage{microtype}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%% AUTHORS - PLACE YOUR OWN COMMANDS HERE %%%%%
@@ -65,8 +67,9 @@
   Brendon~J.~Brewer$^{1}$\thanks{To whom correspondence should be addressed. Email: {\tt bj.brewer@auckland.ac.nz}},
   Kevin H. Knuth$^2$
   \medskip\\
-  $^1$Department of Statistics, The University of Auckland, Private Bag 92019, Auckland 1142, New Zealand\\
-  $^2$Department of Physics, SUNY Albany}
+  $^1$Department of Statistics, The University of Auckland, Private Bag 92019,
+        Auckland 1142, New Zealand\\
+  $^2$Physics Department, University at Albany (SUNY), Albany, NY 12205, USA}
 % These dates will be filled out by the publisher
 \date{}
 
@@ -86,7 +89,7 @@
 % Select between one and six entries from the list of approved keywords.
 % Don't make up new ones.
 \begin{keywords}
-keyword1 -- keyword2 -- keyword3
+methods: data analysis --- methods: statistical
 \end{keywords}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -116,10 +119,30 @@ S(x, y; b) &=
 where $b$ is a limb darkening parameter.
 
 The density profile of the obscuring material is composed of a sum of
-$N$ circular ``blobs'' based on the surface brightness profile
-used by \citet{lensing2}.
-
-
+$N$ circular ``blobs'' based on the blob profile
+used by \citet{lensing2}. A single blob of width $w$ and total ``mass'' $M$
+(the integral of the density profile),
+positioned at the origin, would have density profile
+\begin{align}
+\rho(x, y) &= \left\{
+        \begin{array}{lr}
+            \frac{2M}{\pi w^2}\left(1 - \frac{r^2}{w^2}\right), & r \leq w\\
+            0, & \textnormal{otherwise}
+        \end{array}\right.
+\end{align}
+where $r = \sqrt{x^2 + y^2}$. The total density profile of $N$ blobs,
+with masses $\{M_i\}$ and centers $\{(x_i, y_i)\}$, is
+\begin{align}
+\rho(x, y) &= \sum_{i=1}^N
+        \left\{
+        \begin{array}{lr}
+            \frac{2M_i}{\pi w_i^2}
+                \left(1 - \frac{r_i^2}{w_i^2}\right), & r_i \leq w_i\\
+            0, & \textnormal{otherwise}
+        \end{array}\right.
+\end{align}
+where $r_i = \sqrt{(x - x_i)^2 + (y - y_i)^2}$ is the distance of a point
+in the $x-y$ plane from the central position $(x_i, y_i)$ of blob $i$.
 
 \section*{Acknowledgements}
 This work was funded by a Marsden Fast Start grant from the Royal Society of

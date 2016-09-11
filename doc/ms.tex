@@ -152,11 +152,33 @@ I(x, y) &= S(x, y)e^{-\rho(x,y)}
 and the observed total flux of the star is
 \begin{align}
 F &= \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
-        I(x, y) \, dx \, dy.
+        I(x, y) \, dx \, dy\\
+  &= \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
+        S(x, y)e^{-\rho(x,y)} \, dx \, dy.
 \end{align}
 We define the normalizing constant of the star's surface brightness profile
 such that the total flux of the star would be 1 in the absence of any
 obscuration.
+
+\subsection{Motion of the obscurers}
+As the obscuring blobs are in motion, we need to be able to calculate the
+flux of the star {\em as a function of time}. If the obscurers
+are initially centered around $(x_0, 0)$ and move to the right
+at speed $v$, the observed flux of the star at time $t > 0$ will be
+\begin{align}
+F(t) &= \int_{-\infty}^{\infty}\int_{-\infty}^{\infty}
+          S(x, y)e^{-\rho\left(x - (x_0 + vt), y\right)} \, dx \, dy.
+\end{align}
+which we recognize as the convolution of $S$ with $e^{-\rho}$, evaluated
+at $(x_0 + vt, 0)$:
+\begin{align}
+F(t) &= \left.\left(S * e^{-\rho}\right)\right|_{(x_0 + vt, 0)}.
+\end{align}
+This formulation is computationally convenient. Instead of having to
+simulate the motion of the blobs, we can instead convolve the image of
+the star with the image of the blobs, and evaluate the result at a series
+of points corresponding to the timestamps in the data.
+The convolution can be done using Fast Fourier Transforms.
 
 \section*{Acknowledgements}
 This work was funded by a Marsden Fast Start grant from the Royal Society of

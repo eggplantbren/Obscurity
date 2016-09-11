@@ -6,6 +6,12 @@ import dnest4.classic as dn4
 data = dn4.my_loadtxt("data.txt")
 posterior_sample = dn4.my_loadtxt("posterior_sample.txt")
 
+print("WARNING! This will delete\
+ movie.mkv and the Frames/ directory, if these exist.")
+ch = input("Continue? y/n: ")
+if ch != "y" and ch != "Y":
+    exit()
+
 os.system("rm -rf Frames/ movie.mkv")
 os.mkdir("Frames")
 

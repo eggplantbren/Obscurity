@@ -8,3 +8,8 @@ code/sample.txt
 code/sample_info.txt
 code/sampler_state.txt
 code/weights.txt
+code/KIC-8462852/
+doc/ms.aux
+doc/ms.log
+doc/ms.pdf
+doc/*.toc

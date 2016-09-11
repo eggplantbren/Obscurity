@@ -15,4 +15,5 @@ doc/ms.pdf
 doc/*.toc
 code/Frames
 code/movie.mkv
-
+code/logfile
+code/Obscurity

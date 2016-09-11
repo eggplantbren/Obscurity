@@ -49,6 +49,29 @@ methods: data analysis --- methods: statistical
 \section{Introduction}
 
 
+\section{Hypothesis Space}
+Our modelling assumptions are intended as a compromize between flexibility
+(so we can potentially infer complex structures) and computational
+tractability.
+
+Consider a coordinate system $(x,y)$ in units of the star's radius.
+The surface brightness profile
+$S(x, y)$ of the star uses the limb darkening profile
+\begin{align}
+S(x, y; b) &=
+    \left\{
+        \begin{array}{lr}
+            1 - b\left(1 - \sqrt{1 - (x^2 + y^2)}\right),   & x^2+y^2 \leq 1\\
+            0, & \textnormal{otherwise}
+        \end{array}
+    \right.
+\end{align}
+where $b$ is a limb darkening parameter.
+
+The density profile of the obscuring material is composed of a sum of
+$N$ circular ``blobs'' based on the surface brightness profile
+
+
 \section*{Acknowledgements}
 This work was funded by a Marsden Fast Start grant from the Royal Society of
 New Zealand.

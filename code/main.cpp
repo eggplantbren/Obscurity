@@ -1,10 +1,9 @@
 #include <iostream>
 #include "DNest4/code/DNest4.h"
 #include "MyModel.h"
-#include "MyModel_Pixels.h"
 
 // Which model am I using?
-typedef Obscurity::MyModel_Pixels TheModel;
+typedef Obscurity::MyModel TheModel;
 
 int main(int argc, char** argv)
 {

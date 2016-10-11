@@ -16,6 +16,9 @@ class MyModel_Pixels
         // Coordinates for pre-whitened parameterisation of obscuring map
         arma::mat n;
 
+        // Scale sd for creating obscurer map
+        double sd;
+
         // Obscuring map
         arma::mat obscurer_map;
         arma::mat convolved;

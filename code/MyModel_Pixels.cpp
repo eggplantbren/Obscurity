@@ -21,6 +21,8 @@ void MyModel_Pixels::from_prior(DNest4::RNG& rng)
         for(size_t i=0; i<ni; ++i)
             n(i, j) = rng.randn();
 
+    sd = rng.rand();
+
     DNest4::Cauchy c1(0.0, 1.0);
     x0 = -std::abs(c1.generate(rng));
 
@@ -45,20 +47,56 @@ double MyModel_Pixels::perturb(DNest4::RNG& rng)
 
     if(rng.rand() <= 0.7)
     {
+        // Perturb the ns
+        int which_i, which_j;
+        int reps = 1;
+        if(rng.rand() <= 0.5)
+            reps = (int)pow(10.0, 3*rng.rand());
 
-    }
-    else if(rng.rand() <= 0.5)
-    {
-        DNest4::Cauchy c(0.0, 1.0);
-        logH += c.perturb(x0, rng);
-        x0 = -std::abs(x0);
+        if(reps == 1)
+        {
+            which_i = rng.rand_int(ni);
+            which_j = rng.rand_int(nj);
+
+            logH -= -0.5*pow(n(which_i, which_j), 2);
+            n(which_i, which_j) += rng.randh();
+            logH += -0.5*pow(n(which_i, which_j), 2);
+        }
+        else
+        {
+            for(int i=0; i<reps; ++i)
+            {
+                which_i = rng.rand_int(ni);
+                which_j = rng.rand_int(nj);
+                n(which_i, which_j) = rng.randn();
+            }
+        }
     }
     else
     {
-        DNest4::Cauchy c(0.0, 0.1*data.get_t_range());
-        logH += c.perturb(timescale, rng);
-        timescale = std::abs(timescale);
+        int which = rng.rand_int(3);
+
+        if(which == 0)
+        {
+            sd += rng.randh();
+            DNest4::wrap(sd, 0.0, 1.0);
+            calculate_obscurer_map();
+        }
+        else if(which == 1)
+        {
+            DNest4::Cauchy c(0.0, 1.0);
+            logH += c.perturb(x0, rng);
+            x0 = -std::abs(x0);
+        }
+        else
+        {
+            DNest4::Cauchy c(0.0, 0.1*data.get_t_range());
+            logH += c.perturb(timescale, rng);
+            timescale = std::abs(timescale);
+        }
     }
+
+
     return logH;
 }
 
@@ -86,11 +124,7 @@ void MyModel_Pixels::calculate_obscurer_map()
     // Obscurer image
     for(size_t j=0; j<nj; ++j)
         for(size_t i=0; i<ni; ++i)
-            obscurer_map(i, j) = 0.0;
-
-    for(size_t j=0; j<nj; ++j)
-        for(size_t i=0; i<ni; ++i)
-            obscurer_map(i, j) = exp(-obscurer_map(i, j));
+            obscurer_map(i, j) = exp(-sd*n(i, j));
 
     // FFT of obscurer_map
     arma::cx_mat A = arma::fft2(obscurer_map);

@@ -87,7 +87,7 @@ result = scipy.optimize.minimize(badness, np.array([1.0, 1.0, 1.0]))
 a, b, c = result["x"]
 approx = a + b*ld**c
 approx /= approx.sum()
-print(badness([a, b, c]))
+print(a, b, c, badness([a, b, c]))
 
 plt.plot(ld, jeffreys_prior, "ko-", ld, approx, "g")
 plt.xlabel("Limb darkening parameter")

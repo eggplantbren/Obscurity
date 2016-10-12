@@ -9,8 +9,6 @@ def evaluate_star(x, y, limb_darkening_coefficient=1.0):
     Evaluate surface brightness profile
     """
     rsq = x**2 + y**2
-
-    limb_darkening_coefficient = 1.0
     which = rsq < 1.0
 
     star = np.zeros(x.shape)
@@ -58,5 +56,42 @@ plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt="ko")
 plt.show()
 
 
+# Compute "Jeffreys Prior" for limb darkening parameter
+ld = np.linspace(0.01, 0.99, 100)
+h = 0.001
+divergences = []
+for _ld in ld:
+    star0 = evaluate_star(x, y, _ld) + 1E-300
+    star1 = evaluate_star(x, y, _ld + h) + 1E-300
 
-# Compute 
+    divergence = np.sum(star0 - star1 + star1*np.log(star1/star0))
+    divergences.append(divergence)
+divergences = np.array(divergences)
+jeffreys_prior = np.sqrt(divergences)
+jeffreys_prior /= jeffreys_prior.sum()
+
+def badness(params):
+    """
+    Merit function for constructing an analytic approximation to the
+    Jeffreys prior.
+    """
+    a, b, c = params
+    approx = a + b*ld**c
+    approx /= approx.sum()
+    if np.any(approx < 0.0):
+        return 1E100
+    return np.sum(jeffreys_prior*np.log(jeffreys_prior/approx + 1E-300))
+
+import scipy.optimize
+result = scipy.optimize.minimize(badness, np.array([1.0, 1.0, 1.0]))
+a, b, c = result["x"]
+approx = a + b*ld**c
+approx /= approx.sum()
+print(badness([a, b, c]))
+
+plt.plot(ld, jeffreys_prior, "ko-", ld, approx, "g")
+plt.xlabel("Limb darkening parameter")
+plt.ylabel("Jeffreys Prior")
+plt.ylim(0.0)
+plt.show()
+

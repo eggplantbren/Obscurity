@@ -97,13 +97,18 @@ void MyModel::calculate_obscurer_map()
 
     for(const auto& blob_params: blobs_params)
     {
-        width = blob_params[3]*LL;
+        // Use position relative to center of mass
+        std::vector<double> centered = blob_params;
+        centered[0] -= std::get<0>(com);
+        centered[1] -= std::get<1>(com);    
+
+        width = centered[3]*LL;
 
         // Determine square patch of image to loop over
-        i_min = (int)floor(((y_max - 0.5*dy) - (blob_params[1] + width))/dy);
-        i_max = (int)floor(((y_max - 0.5*dy) - (blob_params[1] - width))/dy);
-        j_min = (int)floor(((blob_params[0] - width) - (x_min + 0.5*dx))/dx);
-        j_max = (int)floor(((blob_params[0] + width) - (x_min + 0.5*dx))/dx);
+        i_min = (int)floor(((y_max - 0.5*dy) - (centered[1] + width))/dy);
+        i_max = (int)floor(((y_max - 0.5*dy) - (centered[1] - width))/dy);
+        j_min = (int)floor(((centered[0] - width) - (x_min + 0.5*dx))/dx);
+        j_max = (int)floor(((centered[0] + width) - (x_min + 0.5*dx))/dx);
 
         if(i_min < 0)
             i_min = 0;
@@ -122,11 +127,6 @@ void MyModel::calculate_obscurer_map()
             j_min = nj - 1;
         if(j_max >= (int)nj)
             j_max = nj - 1;
-
-        // Use position relative to center of mass
-        std::vector<double> centered = blob_params;
-        centered[0] -= std::get<0>(com);
-        centered[1] -= std::get<1>(com);        
 
         for(int j=j_min; j<=j_max; ++j)
             for(int i=i_min; i<=i_max; ++i)

@@ -27,6 +27,9 @@ class MyModel
         // The limb darkening parameter
         double limb_darkening;
 
+        // Baseline (unobscured) magnitude
+        double magnitude;
+
         // Star image
         arma::mat star;
         arma::cx_mat fft_of_star;

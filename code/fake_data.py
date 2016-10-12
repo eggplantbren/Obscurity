@@ -2,7 +2,9 @@ import numpy as np
 import numpy.random as rng
 import matplotlib.pyplot as plt
 
-rng.seed(0)
+# Font tweaks
+plt.rc("font", size=16, family="serif", serif="Computer Sans")
+plt.rc("text", usetex=True)
 
 def evaluate_star(x, y, limb_darkening_coefficient=1.0):
     """
@@ -18,6 +20,9 @@ def evaluate_star(x, y, limb_darkening_coefficient=1.0):
 
     return star
 
+
+# Set RNG seed
+rng.seed(0)
 
 # Coordinate grid
 x = np.linspace(-5, 5, 1001)
@@ -48,11 +53,15 @@ for i in range(0, len(t)):
 data = np.empty((len(t), 3))
 data[:,0] = t
 data[:,2] = 0.01
-data[:,1] = Y + data[:,2]*rng.randn(len(t))
+data[:,1] = 15.0 - 2.5*np.log10(Y) + data[:,2]*rng.randn(len(t))
 
 np.savetxt("data.txt", data)
 
 plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt="ko")
+plt.gca().invert_yaxis()
+plt.xlabel("Time")
+plt.ylabel("Magnitude")
+plt.title("`Easy' simulated data")
 plt.show()
 
 

@@ -38,6 +38,9 @@ void MyModel::from_prior(DNest4::RNG& rng)
             break;
     }
 
+    DNest4::Cauchy c3(0.0, 5.0);
+    magnitude = c3.generate(rng);
+
     calculate_star();
     calculate_obscurer_map();
 }
@@ -63,7 +66,7 @@ double MyModel::perturb(DNest4::RNG& rng)
     }
     else
     {
-        int which = rng.rand_int(3);
+        int which = rng.rand_int(4);
         if(which == 0)
         {
             DNest4::Cauchy c(0.0, 1.0);
@@ -76,7 +79,7 @@ double MyModel::perturb(DNest4::RNG& rng)
             logH += c.perturb(timescale, rng);
             timescale = std::abs(timescale);
         }
-        else
+        else if(which == 2)
         {
             // Limb darkening prior density
             auto p = [](double x) { return 0.7752 + 1.4379*pow(x, 2.3369); };
@@ -87,6 +90,11 @@ double MyModel::perturb(DNest4::RNG& rng)
 
             // Recalculate star
             calculate_star();
+        }
+        else
+        {
+            DNest4::Cauchy c3(0.0, 5.0);
+            logH += c3.perturb(magnitude, rng);
         }
     }
     return logH;
@@ -100,11 +108,14 @@ double MyModel::log_likelihood() const
     const auto& y = data.get_y();
     const auto& sig = data.get_sig();
 
+    // A constant
+    double C = -0.5*log(2*M_PI);
+
     double model_prediction;
     for(size_t i=0; i<t.size(); ++i)
     {
-        model_prediction = calculate_total_flux(t[i]);
-        logL += -0.5*log(2*M_PI) - log(sig[i])
+        model_prediction = magnitude - 2.5*log10(calculate_total_flux(t[i]));
+        logL += C - log(sig[i])
                     - 0.5*pow((y[i] - model_prediction)/sig[i], 2);
     }
 
@@ -228,7 +239,7 @@ void MyModel::print(std::ostream& out) const
 
     const auto& t = data.get_t();
     for(size_t i=0; i<t.size(); ++i)
-        out<<calculate_total_flux(t[i])<<' ';
+        out<<(magnitude - 2.5*log10(calculate_total_flux(t[i])))<<' ';
 
     for(size_t i=0; i<ni; ++i)
         for(size_t j=0; j<nj; ++j)

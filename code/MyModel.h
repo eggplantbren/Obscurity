@@ -4,6 +4,7 @@
 #include "DNest4/code/DNest4.h"
 #include <ostream>
 #include <armadillo>
+#include <tuple>
 #include "Data.h"
 #include "MyConditionalPrior.h"
 
@@ -20,6 +21,9 @@ class MyModel
 
         // Initial positional offset of blobs, and their crossing timescale
         double x0, timescale;
+
+        // Center of mass of blobs
+        std::tuple<double, double> com_blobs() const;
 
         // Calculate the obscurer map
         void calculate_obscurer_map();

@@ -92,6 +92,9 @@ void MyModel::calculate_obscurer_map()
     int i_min, i_max, j_min, j_max;
     double width;
 
+    // Center of mass of blobs
+    auto com = com_blobs();
+
     for(const auto& blob_params: blobs_params)
     {
         width = blob_params[3]*LL;
@@ -120,9 +123,14 @@ void MyModel::calculate_obscurer_map()
         if(j_max >= (int)nj)
             j_max = nj - 1;
 
+        // Use position relative to center of mass
+        std::vector<double> centered = blob_params;
+        centered[0] -= std::get<0>(com);
+        centered[1] -= std::get<1>(com);        
+
         for(int j=j_min; j<=j_max; ++j)
             for(int i=i_min; i<=i_max; ++i)
-                obscurer_map(i, j) += evaluate_blob(blob_params, x[j], y[i]);
+                obscurer_map(i, j) += evaluate_blob(centered, x[j], y[i]);
     }
     for(size_t j=0; j<nj; ++j)
         for(size_t i=0; i<ni; ++i)
@@ -223,6 +231,34 @@ void MyModel::initialise()
 void MyModel::load_data(const char* filename)
 {
     data.load(filename);
+}
+
+std::tuple<double, double> MyModel::com_blobs() const
+{
+    double com_x = 0.0;
+    double com_y = 0.0;
+    double mtot = 0.0;
+    const auto& blobs_params = blobs.get_components();
+
+    double xc, yc, mass;
+    for(size_t i=0; i<blobs_params.size(); ++i)
+    {
+        xc = blobs_params[i][0];
+        yc = blobs_params[i][1];
+        mass = blobs_params[i][2];
+
+        com_x += mass*xc;
+        com_y += mass*yc;
+        mtot += mass;
+    }
+
+    if(blobs_params.size() != 0)
+    {
+        com_x /= mtot;
+        com_y /= mtot;
+    }
+
+    return std::tuple<double, double>(com_x, com_y);
 }
 
 double MyModel::evaluate_blob(const std::vector<double>& blob_params,

@@ -14,6 +14,8 @@ namespace Obscurity
 class MyModel
 {
 	private:
+        /* VARIABLES */
+
         // Obscuring blobs, and their image
         DNest4::RJObject<MyConditionalPrior> blobs;
         arma::mat obscurer_map;
@@ -25,11 +27,20 @@ class MyModel
         // The limb darkening parameter
         double limb_darkening;
 
+        // Star image
+        arma::mat star;
+        arma::cx_mat fft_of_star;
+
+        /* FUNCTIONS */
+
         // Calcultate the center of mass of blobs
         std::tuple<double, double> com_blobs() const;
 
         // Calculate the obscurer map
         void calculate_obscurer_map();
+
+        // Calculate the image of the star
+        void calculate_star();
 
         // Calculate the total flux
         double calculate_total_flux(double time) const;
@@ -68,10 +79,6 @@ class MyModel
         static constexpr double dx = (x_max - x_min)/nj;
         static constexpr double dy = (y_max - y_min)/ni;
         static constexpr double LL = sqrt(dx*dy);
-
-        // Star image
-        static arma::mat star;
-        static arma::cx_mat fft_of_star;
 
         // Evaluate a blob (this defines functional form of blobs)
         static double evaluate_blob(const std::vector<double>& blob_params,

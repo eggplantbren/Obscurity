@@ -11,6 +11,8 @@ MyModel::MyModel()
 :blobs(4, 100, false, MyConditionalPrior(), DNest4::PriorType::log_uniform)
 ,obscurer_map(ni, nj)
 ,convolved(ni, nj)
+,star(ni, nj)
+,fft_of_star(ni, nj)
 {
 
 }
@@ -36,6 +38,7 @@ void MyModel::from_prior(DNest4::RNG& rng)
             break;
     }
 
+    calculate_star();
     calculate_obscurer_map();
 }
 
@@ -83,6 +86,7 @@ double MyModel::perturb(DNest4::RNG& rng)
             logH += log(p(limb_darkening));
 
             // Recalculate star
+            calculate_star();
         }
     }
     return logH;
@@ -177,46 +181,9 @@ void MyModel::calculate_obscurer_map()
             convolved(i, j) = A(i, j).real();
 }
 
-void MyModel::print(std::ostream& out) const
+void MyModel::calculate_star()
 {
-//    out<<limb_darkening;
-    const auto& t = data.get_t();
-    for(size_t i=0; i<t.size(); ++i)
-        out<<calculate_total_flux(t[i])<<' ';
-
-    for(size_t i=0; i<ni; ++i)
-        for(size_t j=0; j<nj; ++j)
-            out<<star(i, j)<<' ';
-
-    for(size_t i=0; i<ni; ++i)
-        for(size_t j=0; j<nj; ++j)
-            out<<obscurer_map(i, j)<<' ';
-}
-
-std::string MyModel::description() const
-{
-    return std::string("");
-}
-
-/* STATIC STUFF */
-
-Data                  MyModel::data;
-arma::mat             MyModel::star(MyModel::ni, MyModel::nj);
-arma::cx_mat          MyModel::fft_of_star(MyModel::ni, MyModel::nj);
-std::vector<double>   MyModel::x(MyModel::nj);
-std::vector<double>   MyModel::y(MyModel::ni);
-
-void MyModel::initialise()
-{
-    for(size_t i=0; i<ni; ++i)
-        y[i] = y_max - (i + 0.5)*dy;
-
-    for(size_t j=0; j<nj; ++j)
-        x[j] = x_min + (j + 0.5)*dx;
-
     double rsq;
-
-    double limb_darkening_coefficient = 1.0;
 
     // Argh column-major order
     // Star image
@@ -229,7 +196,7 @@ void MyModel::initialise()
             if(rsq < 1.0)
             {
                 star(i, j) = 1.0 -
-                    limb_darkening_coefficient*(1.0 - sqrt(1.0 - rsq));
+                    limb_darkening*(1.0 - sqrt(1.0 - rsq));
             }
             else
                 star(i, j) = 0.0;
@@ -253,6 +220,43 @@ void MyModel::initialise()
     }
 
     fft_of_star = arma::fft2(star2);
+}
+
+void MyModel::print(std::ostream& out) const
+{
+    out<<x0<<' '<<timescale<<' '<<limb_darkening<<' ';
+
+    const auto& t = data.get_t();
+    for(size_t i=0; i<t.size(); ++i)
+        out<<calculate_total_flux(t[i])<<' ';
+
+    for(size_t i=0; i<ni; ++i)
+        for(size_t j=0; j<nj; ++j)
+            out<<star(i, j)<<' ';
+
+    for(size_t i=0; i<ni; ++i)
+        for(size_t j=0; j<nj; ++j)
+            out<<obscurer_map(i, j)<<' ';
+}
+
+std::string MyModel::description() const
+{
+    return std::string("");
+}
+
+/* STATIC STUFF */
+
+Data                  MyModel::data;
+std::vector<double>   MyModel::x(MyModel::nj);
+std::vector<double>   MyModel::y(MyModel::ni);
+
+void MyModel::initialise()
+{
+    for(size_t i=0; i<ni; ++i)
+        y[i] = y_max - (i + 0.5)*dy;
+
+    for(size_t j=0; j<nj; ++j)
+        x[j] = x_min + (j + 0.5)*dx;
 }
 
 void MyModel::load_data(const char* filename)

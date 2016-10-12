@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <armadillo>
+#include <sstream>
 
 namespace Obscurity
 {
@@ -281,7 +282,22 @@ void MyModel::print(std::ostream& out) const
 
 std::string MyModel::description() const
 {
-    return std::string("");
+    std::stringstream s;
+    s<<"x0, timescale, limb_darkening, K, nu, ";
+
+    const auto& t = data.get_t();
+    for(size_t i=0; i<t.size(); ++i)
+        s<<"model_prediction["<<i<<"], ";
+
+    for(size_t i=0; i<ni; ++i)
+        for(size_t j=0; j<nj; ++j)
+            s<<"star("<<i<<", ("<<j<<"), ";
+
+    for(size_t i=0; i<ni; ++i)
+        for(size_t j=0; j<nj; ++j)
+            s<<"obscurer_map("<<i<<", ("<<j<<"), ";
+
+    return s.str();
 }
 
 /* STATIC STUFF */

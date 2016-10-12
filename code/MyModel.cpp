@@ -25,6 +25,17 @@ void MyModel::from_prior(DNest4::RNG& rng)
     DNest4::Cauchy c2(0.0, 0.1*data.get_t_range());
     timescale = std::abs(c2.generate(rng));
 
+    // Limb darkening prior
+    // p(x) \propto 0.7752 + 1.4379*x^2.3369
+    auto p = [](double x) { return 0.7752 + 1.4379*pow(x, 2.3369); };
+    double p_max = p(1.0);
+    while(true)
+    {
+        limb_darkening = rng.rand(); 
+        if(rng.rand() <= p(limb_darkening)/p_max)
+            break;
+    }
+
     calculate_obscurer_map();
 }
 
@@ -47,17 +58,32 @@ double MyModel::perturb(DNest4::RNG& rng)
         if(blobs.components_changed())
             calculate_obscurer_map();
     }
-    else if(rng.rand() <= 0.5)
-    {
-        DNest4::Cauchy c(0.0, 1.0);
-        logH += c.perturb(x0, rng);
-        x0 = -std::abs(x0);
-    }
     else
     {
-        DNest4::Cauchy c(0.0, 0.1*data.get_t_range());
-        logH += c.perturb(timescale, rng);
-        timescale = std::abs(timescale);
+        int which = rng.rand_int(3);
+        if(which == 0)
+        {
+            DNest4::Cauchy c(0.0, 1.0);
+            logH += c.perturb(x0, rng);
+            x0 = -std::abs(x0);
+        }
+        else if(which == 1)
+        {
+            DNest4::Cauchy c(0.0, 0.1*data.get_t_range());
+            logH += c.perturb(timescale, rng);
+            timescale = std::abs(timescale);
+        }
+        else
+        {
+            // Limb darkening prior density
+            auto p = [](double x) { return 0.7752 + 1.4379*pow(x, 2.3369); };
+            logH -= log(p(limb_darkening));
+            limb_darkening += rng.randh();
+            DNest4::wrap(limb_darkening, 0.0, 1.0);
+            logH += log(p(limb_darkening));
+
+            // Recalculate star
+        }
     }
     return logH;
 }
@@ -153,6 +179,7 @@ void MyModel::calculate_obscurer_map()
 
 void MyModel::print(std::ostream& out) const
 {
+//    out<<limb_darkening;
     const auto& t = data.get_t();
     for(size_t i=0; i<t.size(); ++i)
         out<<calculate_total_flux(t[i])<<' ';

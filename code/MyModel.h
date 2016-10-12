@@ -22,7 +22,10 @@ class MyModel
         // Initial positional offset of blobs, and their crossing timescale
         double x0, timescale;
 
-        // Center of mass of blobs
+        // The limb darkening parameter
+        double limb_darkening;
+
+        // Calcultate the center of mass of blobs
         std::tuple<double, double> com_blobs() const;
 
         // Calculate the obscurer map

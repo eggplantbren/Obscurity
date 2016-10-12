@@ -190,6 +190,32 @@ the star with the image of the blobs, and evaluate the result at a series
 of points corresponding to the timestamps in the data.
 The convolution can be done using Fast Fourier Transforms.
 
+\section{Prior information}
+In this section we list the assumed prior information, that is,
+the joint prior distribution for the unknown hyperparameters
+$\boldsymbol{\alpha}$, parameters $\boldsymbol{\theta}$,
+and data $\boldsymbol{D}$. The joint prior distribution is usually factorized
+as follows:
+\begin{align}
+p(\boldsymbol{\alpha}, \boldsymbol{\theta}, \boldsymbol{D})
+    &= p(\boldsymbol{\alpha})p(\boldsymbol{\theta}|\boldsymbol{\alpha})
+        p(\boldsymbol{D} | \boldsymbol{\theta}, \boldsymbol{\alpha})\\
+    &= p(\boldsymbol{\alpha})p(\boldsymbol{\theta}|\boldsymbol{\alpha})
+        p(\boldsymbol{D} | \boldsymbol{\theta}).
+\end{align}
+
+\subsection{The limb darkening parameter}
+
+
+
+\section{Demonstration on `easy' simulated data}
+
+
+\section{Demonstration on `hard' simulated data}
+
+\section{Application to KIC*}
+
+
 \section*{Acknowledgements}
 This work was funded by a Marsden Fast Start grant from the Royal Society of
 New Zealand.

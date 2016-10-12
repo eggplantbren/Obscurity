@@ -1,6 +1,7 @@
 #include "MyModel.h"
 #include "DNest4/code/DNest4.h"
 #include <stdexcept>
+#include <cmath>
 #include <armadillo>
 
 namespace Obscurity
@@ -41,6 +42,9 @@ void MyModel::from_prior(DNest4::RNG& rng)
     DNest4::Cauchy c3(0.0, 5.0);
     magnitude = c3.generate(rng);
 
+    noise_boost = rng.rand();
+    nu = exp(log(1.0) + log(1E3)*rng.rand());
+
     calculate_star();
     calculate_obscurer_map();
 }
@@ -66,7 +70,7 @@ double MyModel::perturb(DNest4::RNG& rng)
     }
     else
     {
-        int which = rng.rand_int(4);
+        int which = rng.rand_int(6);
         if(which == 0)
         {
             DNest4::Cauchy c(0.0, 1.0);
@@ -91,10 +95,22 @@ double MyModel::perturb(DNest4::RNG& rng)
             // Recalculate star
             calculate_star();
         }
-        else
+        else if(which == 3)
         {
             DNest4::Cauchy c3(0.0, 5.0);
             logH += c3.perturb(magnitude, rng);
+        }
+        else if(which == 4)
+        {
+            noise_boost += rng.randh();
+            DNest4::wrap(noise_boost, 0.0, 1.0);
+        }
+        else
+        {
+            nu = log(nu);
+            nu += log(1E3)*rng.randh();
+            DNest4::wrap(nu, log(1.0), log(1E3));
+            nu = exp(nu);
         }
     }
     return logH;
@@ -108,15 +124,22 @@ double MyModel::log_likelihood() const
     const auto& y = data.get_y();
     const auto& sig = data.get_sig();
 
-    // A constant
-    double C = -0.5*log(2*M_PI);
+    // Transform from latent U(0, 1) to actual noise-boost factor
+    double K = (noise_boost < 0.5)?
+               (1.0):
+               (exp(log(1E3)*2*(noise_boost - 0.5)));
 
-    double model_prediction;
+    // Compute intensive constant factors outside the loop
+    double C = std::lgamma(0.5*(nu + 1.0)) - std::lgamma(0.5*nu)
+                - 0.5*log(nu*M_PI);
+
+    double model_prediction, scale;
     for(size_t i=0; i<t.size(); ++i)
     {
         model_prediction = magnitude - 2.5*log10(calculate_total_flux(t[i]));
-        logL += C - log(sig[i])
-                    - 0.5*pow((y[i] - model_prediction)/sig[i], 2);
+        scale = K*sig[i];
+        logL += C - log(scale) - 0.5*(nu+1)*
+                        (1.0 + pow(y[i] - model_prediction, 2)/scale/scale/nu);
     }
 
     return logL;
@@ -235,7 +258,13 @@ void MyModel::calculate_star()
 
 void MyModel::print(std::ostream& out) const
 {
+    // Transform from latent U(0, 1) to actual noise-boost factor
+    double K = (noise_boost < 0.5)?
+               (1.0):
+               (exp(log(1E3)*2*(noise_boost - 0.5)));
+
     out<<x0<<' '<<timescale<<' '<<limb_darkening<<' ';
+    out<<K<<' '<<nu<<' ';
 
     const auto& t = data.get_t();
     for(size_t i=0; i<t.size(); ++i)

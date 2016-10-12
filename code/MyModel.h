@@ -30,6 +30,10 @@ class MyModel
         // Baseline (unobscured) magnitude
         double magnitude;
 
+        // Measurement-error-related parameters
+        double noise_boost;
+        double nu;
+
         // Star image
         arma::mat star;
         arma::cx_mat fft_of_star;

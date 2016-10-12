@@ -17,7 +17,7 @@ os.mkdir("Frames")
 
 for i in range(0, posterior_sample.shape[0]):
     line = posterior_sample[i, :].copy()
-    line = line[3:]
+    line = line[5:]
 
     plt.subplot(3, 1, 1)
     plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt="ko")

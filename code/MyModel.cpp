@@ -291,11 +291,11 @@ std::string MyModel::description() const
 
     for(size_t i=0; i<ni; ++i)
         for(size_t j=0; j<nj; ++j)
-            s<<"star("<<i<<", ("<<j<<"), ";
+            s<<"star("<<i<<", "<<j<<"), ";
 
     for(size_t i=0; i<ni; ++i)
         for(size_t j=0; j<nj; ++j)
-            s<<"obscurer_map("<<i<<", ("<<j<<"), ";
+            s<<"obscurer_map("<<i<<", "<<j<<"), ";
 
     return s.str();
 }

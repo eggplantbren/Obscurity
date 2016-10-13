@@ -20,6 +20,7 @@ for i in range(0, posterior_sample.shape[0]):
     line = line[5:]
 
     plt.subplot(3, 1, 1)
+    plt.hold(False)
     plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt="ko")
     plt.hold(True)
     plt.plot(data[:,0], line[0:data.shape[0]], "g",\

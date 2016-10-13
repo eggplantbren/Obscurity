@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import dnest4.classic as dn4
 
-data = dn4.my_loadtxt("data.txt")
+data = dn4.my_loadtxt("easy_data.txt")
 posterior_sample = dn4.my_loadtxt("posterior_sample.txt")
 
 print("WARNING! This will delete\

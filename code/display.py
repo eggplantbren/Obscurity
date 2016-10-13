@@ -24,6 +24,7 @@ for i in range(0, posterior_sample.shape[0]):
     plt.hold(True)
     plt.plot(data[:,0], line[0:data.shape[0]], "g",\
                             linewidth=2)
+    plt.gca().invert_yaxis()
     plt.xlabel("Time")
     plt.ylabel("Brightness")
     line = line[data.shape[0]:]

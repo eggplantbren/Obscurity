@@ -19,6 +19,8 @@ for i in range(0, posterior_sample.shape[0]):
     line = posterior_sample[i, :].copy()
     line = line[5:]
 
+    plt.clf()
+
     plt.subplot(3, 1, 1)
     plt.hold(False)
     plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt="ko")

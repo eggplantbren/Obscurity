@@ -7,7 +7,7 @@ typedef Obscurity::MyModel TheModel;
 
 int main(int argc, char** argv)
 {
-    TheModel::load_data("data.txt");
+    TheModel::load_data("easy_data.txt");
     TheModel::initialise();
 
     DNest4::start<TheModel>(argc, argv);

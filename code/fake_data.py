@@ -55,13 +55,52 @@ data[:,0] = t
 data[:,2] = 0.01
 data[:,1] = 15.0 - 2.5*np.log10(Y) + data[:,2]*rng.randn(len(t))
 
-np.savetxt("data.txt", data)
+np.savetxt("easy_data.txt", data)
 
 plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt="ko")
 plt.gca().invert_yaxis()
 plt.xlabel("Time")
 plt.ylabel("Magnitude")
 plt.title("`Easy' simulated data")
+plt.show()
+
+# Create harder data
+def face(xx, yy):
+    # The two eyes
+    rsq = (xx + 0.3)**2 + (yy - 0.5)**2
+    result = np.exp(-0.5*rsq/0.05**2)
+    rsq = (xx - 0.3)**2 + (yy - 0.5)**2
+    result += np.exp(-0.5*rsq/0.05**2)
+
+    # The mouth
+    result += np.exp(-(yy - xx**2)**2/0.05**2)*np.exp(-0.5*xx**2/0.2**2)
+    return result
+
+plt.imshow(np.exp(-face(x, y)), cmap="viridis", interpolation="nearest")
+plt.show()
+
+t = np.linspace(0.0, 10.0, 101)
+Y = np.empty(len(t))
+for i in range(0, len(t)):
+    # Face position
+    x_face = x0 + v*t[i]
+    img = evaluate_star(x, y)*np.exp(-face(x - x_face, y))
+    Y[i] = img.sum()
+    print("{k}/{n}".format(k=i+1, n=len(t)))
+
+data = np.empty((len(t), 3))
+data[:,0] = t
+data[:,2] = 0.001
+data[:,1] = 15.0 - 2.5*np.log10(Y) + data[:,2]*rng.randn(len(t))
+
+np.savetxt("hard_data.txt", data)
+
+plt.clf()
+plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt="ko")
+plt.gca().invert_yaxis()
+plt.xlabel("Time")
+plt.ylabel("Magnitude")
+plt.title("`Hard' simulated data")
 plt.show()
 
 

@@ -5,6 +5,7 @@ import dnest4.classic as dn4
 
 data = dn4.my_loadtxt("easy_data.txt")
 posterior_sample = dn4.my_loadtxt("posterior_sample.txt")
+indices = dn4.load_column_names("posterior_sample.txt")["indices"]
 
 print("WARNING! This will delete\
  movie.mkv and the Frames/ directory, if these exist.")
@@ -17,7 +18,7 @@ os.mkdir("Frames")
 
 for i in range(0, posterior_sample.shape[0]):
     line = posterior_sample[i, :].copy()
-    line = line[5:]
+    line = line[indices["model_prediction[0]"]:]
 
     plt.clf()
 

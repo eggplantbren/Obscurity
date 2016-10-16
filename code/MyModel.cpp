@@ -266,6 +266,7 @@ void MyModel::print(std::ostream& out) const
 
     out<<x0<<' '<<timescale<<' '<<limb_darkening<<' ';
     out<<K<<' '<<nu<<' ';
+    blobs.print(out);
 
     const auto& t = data.get_t();
     for(size_t i=0; i<t.size(); ++i)
@@ -284,6 +285,17 @@ std::string MyModel::description() const
 {
     std::stringstream s;
     s<<"x0, timescale, limb_darkening, K, nu, ";
+
+    s<<"dim_blobs, max_num_blobs, sigma, mu_mass, mu_width, ";
+    s<<"num_blobs, ";
+    for(int i=0; i<100; ++i)
+        s<<"xc["<<i<<"], ";
+    for(int i=0; i<100; ++i)
+        s<<"yc["<<i<<"], ";
+    for(int i=0; i<100; ++i)
+        s<<"mass["<<i<<"], ";
+    for(int i=0; i<100; ++i)
+        s<<"width["<<i<<"], ";
 
     const auto& t = data.get_t();
     for(size_t i=0; i<t.size(); ++i)

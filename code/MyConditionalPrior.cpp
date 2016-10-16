@@ -85,7 +85,7 @@ void MyConditionalPrior::to_uniform(std::vector<double>& vec) const
 
 void MyConditionalPrior::print(std::ostream& out) const
 {
-	out<<' ';
+	out<<sigma<<' '<<mu_mass<<' '<<mu_width<<' ';
 }
 
 } // namespace Obscurity
